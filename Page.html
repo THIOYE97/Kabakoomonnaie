@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Transfert de Cryptomonnaie</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.6;
+    }
+
+    .content {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label {
+      color: #333;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input {
+      padding: 8px;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+     <style>
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: Arial, sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          min-height: 100vh;
+        }
+    
+        .logo {
+          margin-top: 20px;
+        }
+    
+        .logo img {
+          width: 200px;
+          height: auto;
+        }
+    
+        .content {
+          background-color: rgba(255, 255, 255, 0.8);
+          padding: 20px;
+          text-align: center;
+        }
+    
+        h1 {
+          color: #333;
+          margin-bottom: 20px;
+        }
+    
+        label {
+          color: #333;
+          display: block;
+          margin-bottom: 10px;
+        }
+    
+        input {
+          padding: 8px;
+          font-size: 16px;
+          width: 100%;
+          margin-bottom: 10px;
+        }
+    
+        button {
+          margin-top: 20px;
+          padding: 10px 20px;
+          font-size: 16px;
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          cursor: pointer;
+        }
+    
+        button:hover {
+          background-color: #45a049;
+        }
+      </style>
+    <body>  <div class="logo">
+        <img src="image/kabakoologo.png" alt="Logo de l'entreprise">
+      </div>
+    
+      <div class="content">
+        <img class="background-image" src="image/6856e53e2a6f457fdb93c3cddda84b9d.jpg">
+
+        <div class="content">
+  <h1>KABAKOOmonnaie</h1>
+
+  <label for="recipientInput">Adresse de destination :</label>
+  <input type="text" id="recipientInput" placeholder="Adresse Ethereum du destinataire">
+
+  <label for="amountInput">Montant :</label>
+  <input type="text" id="amountInput" placeholder="Montant à transférer en ETH">
+
+  <button id="transferButton">Transférer</button>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      
+      if (typeof window.ethereum !== 'undefined' || typeof window.web3 !== 'undefined') {
+        
+        const provider = window.ethereum || window.web3.currentProvider;
+
+       
+        provider.chainId = '0x54f8'; 
+        provider.networkVersion = '123456'; 
+        await window.ethereum.enable(); 
+        const web3 = new Web3(provider);
+        const accounts = await web3.eth.getAccounts();
+        const accountAddress = accounts[0];
+
+       
+        const transferButton = document.getElementById('transferButton');
+        transferButton.addEventListener('click', async () => {
+          try {
+            
+            const recipient = document.getElementById('recipientInput').value;
+            const amount = document.getElementById('amountInput').value;
+
+            
+            if (!recipient || !amount || isNaN(amount) || parseFloat(amount) <= 0) {
+              console.error('Veuillez spécifier une adresse de destinataire valide et un montant supérieur à zéro');
+              return;
+            }
+
+           
+            const contractAddress = '0xC8B378B979dbC7bf200Ce79527853daC2973E492'; 
+            const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "address payable",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	}
+]; 
+            const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+           
+            const amountInWei = web3.utils.toWei(amount.toString(), 'ether');
+
+          
+            const tx = await contract.methods.transfer(recipient, amountInWei).send({ from: accountAddress ,gas: '500000'});
+
+            console.log('Transfert effectué ! Transaction :', tx);
+          } catch (error) {
+            console.error('Erreur lors du transfert :', error);
+          }
+        });
+      } else {
+        console.error('Web3 n\'est pas disponible dans le navigateur');
+      }
+    });
+  </script>
+</body>
+</html>
